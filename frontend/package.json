@@ -28,11 +28,7 @@
     "http": "^0.0.1-security",
     "jodit-react": "^5.2.19",
     "js-cookie": "^3.0.5",
-<<<<<<< HEAD
     "lucide-react": "^0.542.0",
-=======
-    "lucide-react": "^0.541.0",
->>>>>>> 1d88698300925548f30559b7b34e97266e3bc7b7
     "moment": "^2.30.1",
     "next": "15.5.0",
     "react": "19.1.0",
