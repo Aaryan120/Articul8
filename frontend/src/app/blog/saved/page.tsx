@@ -16,9 +16,19 @@ const SavedBlogs = () => {
   );
 
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold mt-2">Saved Blogs</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+    <div className="mx-auto flex w-full max-w-[780px] flex-col gap-6">
+      <div>
+        <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
+          Your Library
+        </p>
+        <h1 className="font-serif text-4xl leading-tight text-foreground md:text-5xl">
+          Saved stories
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Keep the articles you want to revisit later.
+        </p>
+      </div>
+      <div className="space-y-2">
         {filteredBlogs.length > 0 ? (
           filteredBlogs.map((e, i) => {
             return (
@@ -29,11 +39,20 @@ const SavedBlogs = () => {
                 desc={e.description}
                 id={e.id}
                 time={e.created_at}
+                author={e.author}
+                category={e.category}
               />
             );
           })
         ) : (
-          <p>No saved blogs yet!</p>
+          <div className="rounded-3xl border border-dashed border-border/70 bg-card/70 p-10 text-center">
+            <p className="font-serif text-xl text-foreground">
+              No saved stories yet.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Start bookmarking your favorite reads.
+            </p>
+          </div>
         )}
       </div>
     </div>
