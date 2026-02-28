@@ -1,7 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,6 +16,8 @@ import {
   Bookmark,
   BookmarkCheck,
   Edit,
+  Heart,
+  Share2,
   Trash2,
   Trash2Icon,
   User2,
@@ -151,6 +153,7 @@ const BlogPage = () => {
   }
 
   const [saved, setSaved] = useState(false);
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     if (savedBlogs && savedBlogs.some((b) => b.blogid === id)) {
@@ -191,128 +194,197 @@ const BlogPage = () => {
     return <Loading />;
   }
 
+  const createdAt = new Date(blog.created_at).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const contentText = blog.blogcontent
+    ? blog.blogcontent.replace(/<[^>]*>/g, " ")
+    : blog.description;
+  const readTime = Math.max(
+    1,
+    Math.round(contentText.split(/\s+/).length / 180)
+  );
+
+  const shareBlog = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: blog.title, url });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <h1 className="text-3xl font-bold text-gray-900">{blog.title}</h1>
-          <p className="text-gray-600 mt-2 flex items-center">
-            <Link
-              className="flex items-center gap-2"
-              href={`/profile/${author?._id}`}
-            >
-              <img
-                src={author?.image}
-                className="w-8 h-8 rounded-full"
-                alt=""
-              />
-              {author?.name}
-            </Link>
-            {isAuth && (
-              <Button
-                variant={"ghost"}
-                className="mx-3"
-                size={"lg"}
-                disabled={loading}
-                onClick={saveBlog}
+    <div className="relative">
+      <div className="mx-auto w-full max-w-[780px] px-4 pb-20 pt-8">
+        <article className="space-y-6">
+          <div className="space-y-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+              {blog.category}
+            </p>
+            <h1 className="font-serif text-4xl leading-tight text-foreground md:text-5xl">
+              {blog.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <Link
+                className="flex items-center gap-2 text-foreground"
+                href={`/profile/${author?._id}`}
               >
-                {saved ? <BookmarkCheck /> : <Bookmark />}
+                <img
+                  src={author?.image}
+                  className="h-9 w-9 rounded-full object-cover"
+                  alt={author?.name}
+                />
+                <span className="font-medium">{author?.name}</span>
+              </Link>
+              <span aria-hidden="true">•</span>
+              <span>{createdAt}</span>
+              <span aria-hidden="true">•</span>
+              <span>{readTime} min read</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 lg:hidden">
+              {isAuth && (
+                <Button variant="outline" onClick={saveBlog} disabled={loading}>
+                  {saved ? <BookmarkCheck /> : <Bookmark />}
+                  {saved ? "Saved" : "Save"}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => setLiked((prev) => !prev)}
+              >
+                <Heart className={liked ? "fill-current" : ""} />
+                {liked ? "Liked" : "Like"}
               </Button>
-            )}
-            {blog.author === user?._id && (
-              <>
-                <Button
-                  size={"sm"}
-                  onClick={() => router.push(`/blog/edit/${id}`)}
-                >
-                  <Edit />
-                </Button>
-                <Button
-                  variant={"destructive"}
-                  className="mx-2"
-                  size={"sm"}
-                  onClick={deletBlog}
-                  disabled={loading}
-                >
-                  <Trash2Icon />
-                </Button>
-              </>
-            )}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <img
-            src={blog.image}
-            alt=""
-            className="w-full h-64 object-cover rounded-lg mb-4"
-          />
-          <p className="text-lg text-gray-700 mb-4">{blog.description}</p>
+              <Button variant="outline" onClick={shareBlog}>
+                <Share2 />
+                Share
+              </Button>
+              {blog.author === user?._id && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/blog/edit/${id}`)}
+                  >
+                    <Edit />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={deletBlog}
+                    disabled={loading}
+                  >
+                    <Trash2Icon />
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-3xl border border-border/60 bg-card/60 shadow-sm">
+            <img
+              src={blog.image}
+              alt={blog.title}
+              className="h-72 w-full object-cover md:h-96"
+            />
+          </div>
+
+          <p className="text-lg text-foreground/80">{blog.description}</p>
           <div
-            className="prose max-w-none"
+            className="article-content"
             dangerouslySetInnerHTML={{ __html: blog.blogcontent }}
           />
-        </CardContent>
-      </Card>
+        </article>
 
-      {isAuth && (
-        <Card>
-          <CardHeader>
-            <h3 className="text-xl font-semibold">Leave a comment</h3>
-          </CardHeader>
-          <CardContent>
-            <Label htmlFor="comment">Your Comment</Label>
-            <Input
-              id="comment"
-              placeholder="Type your comment here"
-              className="my-2"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-            <Button onClick={addComment} disabled={loading}>
-              {loading ? "Adding comment..." : "Post Comment"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+        {isAuth && (
+          <section className="mt-12 rounded-3xl border border-border/60 bg-card/70 p-6 shadow-sm">
+            <h3 className="font-serif text-2xl text-foreground">
+              Join the discussion
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Share a thoughtful response with the community.
+            </p>
+            <div className="mt-4 space-y-3">
+              <Label htmlFor="comment">Your comment</Label>
+              <Input
+                id="comment"
+                placeholder="Write your response..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <Button onClick={addComment} disabled={loading}>
+                {loading ? "Posting..." : "Post Comment"}
+              </Button>
+            </div>
+          </section>
+        )}
 
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-medium">All Comments</h3>
-        </CardHeader>
-        <CardContent>
-          {comments && comments.length > 0 ? (
-            comments.map((e, i) => {
-              return (
-                <div key={i} className="border-b py-2 flex items-center gap-3">
-                  <div>
-                    <p className="font-semibold flex items-center gap-1">
-                      <span className="user border border-gray-400 rounded-full p-1">
-                        <User2 />
-                      </span>
-                      {e.username}
-                    </p>
-                    <p>{e.comment}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(e.create_at).toLocaleString()}
-                    </p>
+        <section className="mt-10 rounded-3xl border border-border/60 bg-card/70 p-6 shadow-sm">
+          <h3 className="font-serif text-2xl text-foreground">Comments</h3>
+          <div className="mt-4 space-y-4">
+            {comments && comments.length > 0 ? (
+              comments.map((e, i) => {
+                return (
+                  <div
+                    key={i}
+                    className="flex flex-wrap items-start justify-between gap-4 border-b border-border/60 pb-4"
+                  >
+                    <div>
+                      <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <span className="rounded-full border border-border/70 p-1 text-muted-foreground">
+                          <User2 />
+                        </span>
+                        {e.username}
+                      </p>
+                      <p className="mt-2 text-sm text-foreground/80">
+                        {e.comment}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {new Date(e.create_at).toLocaleString()}
+                      </p>
+                    </div>
+                    {e.userid === user?._id && (
+                      <Button
+                        onClick={() => deleteComment(e.id)}
+                        variant="ghost"
+                        disabled={loading}
+                      >
+                        <Trash2 />
+                      </Button>
+                    )}
                   </div>
-                  {e.userid === user?._id && (
-                    <Button
-                      onClick={() => deleteComment(e.id)}
-                      variant={"destructive"}
-                      disabled={loading}
-                    >
-                      <Trash2 />
-                    </Button>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <p>No Comments Yet</p>
-          )}
-        </CardContent>
-      </Card>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No comments yet. Be the first to respond.
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <div className="fixed right-8 top-1/3 hidden flex-col gap-3 xl:flex">
+        {isAuth && (
+          <Button variant="outline" onClick={saveBlog} disabled={loading}>
+            {saved ? <BookmarkCheck /> : <Bookmark />}
+          </Button>
+        )}
+        <Button variant="outline" onClick={() => setLiked((prev) => !prev)}>
+          <Heart className={liked ? "fill-current" : ""} />
+        </Button>
+        <Button variant="outline" onClick={shareBlog}>
+          <Share2 />
+        </Button>
+      </div>
     </div>
   );
 };

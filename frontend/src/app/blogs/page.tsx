@@ -1,4 +1,4 @@
- "use client";
+"use client";
 import BlogCard from "@/components/BlogCard";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
@@ -10,31 +10,49 @@ import React from "react";
 const Blogs = () => {
   const { toggleSidebar } = useSidebar();
   const { loading, blogLoading, blogs } = useAppData();
-
   return (
     <div>
       {loading ? (
         <Loading />
       ) : (
-        <div className="contianer mx-auto px-4">
-          <div className="flex justify-between items-center my-5">
-            <h1 className="text-3xl font-bold">Latest Blogs</h1>
+        <div className="mx-auto flex w-full max-w-[780px] flex-col gap-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
+                Articul8 Journal
+              </p>
+              <h1 className="font-serif text-4xl leading-tight text-foreground md:text-5xl">
+                Latest stories & thoughtful essays
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                A calm space for deep reading and fresh perspectives.
+              </p>
+            </div>
             <Button
               onClick={toggleSidebar}
-              className="flex items-center gap-2 px-4 bg-primary text-white"
-              disabled={blogs?.length === 0}
+              variant="ghost"
+              className="flex items-center gap-2"
             >
               <Filter size={18} />
-              <span>Filter Blogs</span>
+              <span>Filter</span>
             </Button>
           </div>
           {blogLoading ? (
             <Loading />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {blogs?.length === 0 && <p className="">No Blogs Yet</p>}
-              {blogs && blogs?.length > 0 &&
-                blogs?.map((e, i) => {
+            <div className="space-y-2">
+              {blogs?.length === 0 && (
+                <div className="rounded-3xl border border-dashed border-border/70 bg-card/70 p-10 text-center">
+                  <p className="font-serif text-xl text-foreground">
+                    No stories yet.
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Check back soon for new writing.
+                  </p>
+                </div>
+              )}
+              {blogs &&
+                blogs.map((e, i) => {
                   return (
                     <BlogCard
                       key={i}
@@ -43,6 +61,8 @@ const Blogs = () => {
                       desc={e.description}
                       id={e.id}
                       time={e.created_at}
+                      author={e.author}
+                      category={e.category}
                     />
                   );
                 })}
