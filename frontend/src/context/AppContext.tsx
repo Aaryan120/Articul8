@@ -13,9 +13,9 @@ import toast, { Toaster } from "react-hot-toast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 // import { get } from "http";
 
-export const user_service = "http://localhost:5000";
-export const author_service = "http://localhost:5001";
-export const blog_service = "http://localhost:5002";
+export const user_service = "https://user-service-mnn8.onrender.com";
+export const author_service = "https://author-service-a82b.onrender.com";
+export const blog_service = "https://blog-service-jfpf.onrender.com";
 
 export const blogCategories = [
   "Techonlogy",
@@ -47,6 +47,7 @@ export interface Blog {
   category: string;
   author: string;
   created_at: string;
+  message?: string;
 }
 
 interface SavedBlogType {
@@ -66,8 +67,11 @@ interface AppContextType {
   logoutUser: () => Promise<void>;
   blogs: Blog[] | null;
   blogLoading: boolean;
+  debouncedQuery:string;
+  setDebouncedQuery:React.Dispatch<React.SetStateAction<string>>;
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   searchQuery: string;
+  category: string;
   setCategory: React.Dispatch<React.SetStateAction<string>>;
   fetchBlogs: () => Promise<void>;
   savedBlogs: SavedBlogType[] | null;
@@ -108,14 +112,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const [blogs, setBlogs] = useState<Blog[] | null>(null);
   const [category, setCategory] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery,setDebouncedQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(debouncedQuery);
+
+  useEffect(()=>{
+    const handler = setTimeout(() =>{
+      setSearchQuery(debouncedQuery);
+    },500);
+    return () =>{
+      clearTimeout(handler);
+    }
+  },[debouncedQuery]);
 
   async function fetchBlogs() {
     setBlogLoading(true);
     try {
-      const { data } = await axios.get<Blog[]>(
+      const { data } = await axios.get<Blog[] | any>(
         `${blog_service}/api/v1/blog/all?searchQuery=${searchQuery}&category=${category}`
       );
+      if(data?.message === "No Blogs Found"){
+        setBlogs([]);
+        return;
+      }
 
       setBlogs(data);
     } catch (error) {
@@ -124,6 +142,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setBlogLoading(false);
     }
   }
+
+
+  useEffect(() =>{
+    if(!searchQuery) return;
+
+    fetchBlogs()
+  },[searchQuery]);
+  
 
   const [savedBlogs, setSavedBlogs] = useState<SavedBlogType[] | null>(null);
 
@@ -173,7 +199,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         logoutUser,
         blogs,
         blogLoading,
+        category,
         setCategory,
+        debouncedQuery,
+        setDebouncedQuery,
         setSearchQuery,
         searchQuery,
         fetchBlogs,

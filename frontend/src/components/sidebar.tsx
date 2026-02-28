@@ -12,7 +12,9 @@ import { SlidersHorizontal } from "lucide-react";
 import { blogCategories, useAppData } from "@/context/AppContext";
 
 const SideBar = () => {
-  const { searchQuery, setSearchQuery, setCategory } = useAppData();
+  const { debouncedQuery, category, setDebouncedQuery, setCategory } =
+    useAppData();
+
   return (
     <Sidebar
       side="right"
@@ -29,6 +31,7 @@ const SideBar = () => {
           Focus your reading with search and topics.
         </p>
       </SidebarHeader>
+
       <SidebarContent className="bg-sidebar/80 px-4 pb-6">
         <SidebarGroup className="gap-3">
           <SidebarGroupLabel className="text-[0.7rem] uppercase tracking-[0.3em] text-muted-foreground">
@@ -36,8 +39,12 @@ const SideBar = () => {
           </SidebarGroupLabel>
           <Input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={debouncedQuery}
+            onChange={(e) => {
+              const value = e.target.value.trim();
+              if (value) setDebouncedQuery(e.target.value);
+              else setDebouncedQuery("");
+            }}
             placeholder="Search stories, topics, or authors"
           />
 
@@ -48,18 +55,26 @@ const SideBar = () => {
             <button
               type="button"
               onClick={() => setCategory("")}
-              className="rounded-full border border-border/70 bg-background/80 px-4 py-1.5 text-xs font-medium text-foreground transition hover:border-foreground/20 hover:bg-foreground/5"
+              className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${
+                category === ""
+                  ? "border-foreground/20 bg-foreground/10 text-foreground"
+                  : "border-border/70 bg-background/80 text-foreground hover:border-foreground/20 hover:bg-foreground/5"
+              }`}
             >
               All
             </button>
-            {blogCategories?.map((category, index) => (
+            {blogCategories?.map((item, index) => (
               <button
                 type="button"
                 key={index}
-                onClick={() => setCategory(category)}
-                className="rounded-full border border-border/70 bg-background/80 px-4 py-1.5 text-xs font-medium text-foreground transition hover:border-foreground/20 hover:bg-foreground/5"
+                onClick={() => setCategory(item)}
+                className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${
+                  category === item
+                    ? "border-foreground/20 bg-foreground/10 text-foreground"
+                    : "border-border/70 bg-background/80 text-foreground hover:border-foreground/20 hover:bg-foreground/5"
+                }`}
               >
-                {category}
+                {item}
               </button>
             ))}
           </div>

@@ -49,7 +49,7 @@ const BlogPage = () => {
   async function fetchComment() {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${blog_service}/api/v1/comment/${id}`);
+      const { data } = await axios.get<any>(`${blog_service}/api/v1/comment/${id}`);
       setComments(data);
     } catch (error) {
       console.log(error);
@@ -68,7 +68,7 @@ const BlogPage = () => {
     try {
       setLoading(true);
       const token = Cookies.get("token");
-      const { data } = await axios.post(
+      const { data } = await axios.post<any>(
         `${blog_service}/api/v1/comment/${id}`,
         { comment },
         {
@@ -82,6 +82,7 @@ const BlogPage = () => {
       fetchComment();
     } catch (error) {
       toast.error("Problem while adding comment");
+      console.log("PRINTING ERROR: ",error);
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ const BlogPage = () => {
   async function fetchSingleBlog() {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${blog_service}/api/v1/blog/${id}`);
+      const { data } = await axios.get<any>(`${blog_service}/api/v1/blog/${id}`);
       setBlog(data.blog);
       setAuthor(data.author);
     } catch (error) {
@@ -105,7 +106,7 @@ const BlogPage = () => {
       try {
         setLoading(true);
         const token = Cookies.get("token");
-        const { data } = await axios.delete(
+        const { data } = await axios.delete<any>(
           `${blog_service}/api/v1/comment/${id}`,
           {
             headers: {
@@ -129,7 +130,7 @@ const BlogPage = () => {
       try {
         setLoading(true);
         const token = Cookies.get("token");
-        const { data } = await axios.delete(
+        const { data } = await axios.delete<any>(
           `${author_service}/api/v1/blog/${id}`,
           {
             headers: {
@@ -166,7 +167,7 @@ const BlogPage = () => {
     const token = Cookies.get("token");
     try {
       setLoading(true);
-      const { data } = await axios.post(
+      const { data } = await axios.post<any>(
         `${blog_service}/api/v1/save/${id}`,
         {},
         {
