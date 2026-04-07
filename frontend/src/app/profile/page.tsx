@@ -109,156 +109,169 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
+    <div className="flex min-h-[calc(100vh-80px)] items-center justify-center p-6">
       {loading ? (
         <Loading />
       ) : (
-        <Card className="w-full max-w-xl shadow-lg border rounded-2xl p-6">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-semibold">Profile</CardTitle>
+        <Card className="w-full max-w-lg rounded-3xl border border-border/60 bg-card/90 p-8 shadow-xl">
+          <CardHeader className="items-center text-center space-y-3">
+            <CardTitle className="font-serif text-2xl text-foreground">
+              Profile
+            </CardTitle>
+            <Avatar
+              className="h-28 w-28 border-4 border-background shadow-lg cursor-pointer"
+              onClick={clickHandler}
+            >
+              <AvatarImage src={user?.image} alt="profile pic" />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                ref={InputRef}
+                onChange={changeHandler}
+              />
+            </Avatar>
+          </CardHeader>
+          <CardContent className="mt-2 space-y-5 text-center">
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                Name
+              </p>
+              <p className="text-lg font-medium text-foreground">
+                {user?.name}
+              </p>
+            </div>
 
-            <CardContent className="flex flex-col items-center space-y-4">
-              <Avatar
-                className="w-28 h-28 border-4 border-gray-200 shadow-md cursor-pointer"
-                onClick={clickHandler}
-              >
-                <AvatarImage src={user?.image} alt="profile pic" />
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  ref={InputRef}
-                  onChange={changeHandler}
-                />
-              </Avatar>
-
-              <div className="w-full space-y-2 text-center">
-                <label className="font-medium">Name</label>
-                <p>{user?.name}</p>
+            {user?.bio && (
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                  Bio
+                </p>
+                <p className="text-sm text-foreground/80">{user.bio}</p>
               </div>
+            )}
 
-              {user?.bio && (
-                <div className="w-full space-y-2 text-center">
-                  <label className="font-medium">Bio</label>
-                  <p>{user.bio}</p>
-                </div>
+            <div className="flex justify-center gap-3">
+              {user?.instagram && (
+                <a
+                  href={user.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-100 text-pink-600 shadow-sm"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
               )}
 
-              <div className="flex gap-4 mt-3">
-                {user?.instagram && (
-                  <a
-                    href={user.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Instagram className="text-pink-500 text-2xl" />
-                  </a>
-                )}
+              {user?.facebook && (
+                <a
+                  href={user.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-blue-600 shadow-sm"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
 
-                {user?.facebook && (
-                  <a
-                    href={user.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Facebook className="text-blue-500 text-2xl" />
-                  </a>
-                )}
+              {user?.linkedin && (
+                <a
+                  href={user.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-sky-700 shadow-sm"
+                >
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+            </div>
 
-                {user?.linkedin && (
-                  <a
-                    href={user.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Linkedin className="text-blue-700 text-2xl" />
-                  </a>
-                )}
-              </div>
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
+              <Button onClick={logoutHandler} className="px-6">
+                Logout
+              </Button>
+              <Button
+                onClick={() => router.push("/blog/new")}
+                className="px-6"
+              >
+                Add Blog
+              </Button>
 
-              <div className="flex flex-col sm:flex-row gap-2 mt-6 w-full justify-center">
-                <Button onClick={logoutHandler}>Logout</Button>
-                <Button onClick={() => router.push("/blog/new")}>
-                  Add Blog
-                </Button>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button variant={"outline"} className="px-6">
+                    Edit
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Edit Profile</DialogTitle>
+                  </DialogHeader>
 
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant={"outline"}>Edit</Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                      <DialogTitle>Edit Profile</DialogTitle>
-                    </DialogHeader>
-
-                    <div className="space-y-3">
-                      <div>
-                        <Label className="mb-2">Name</Label>
-                        <Input
-                          value={formData.name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2">Bio</Label>
-                        <Input
-                          value={formData.bio}
-                          onChange={(e) =>
-                            setFormData({ ...formData, bio: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2">instagram</Label>
-                        <Input
-                          value={formData.instagram}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              instagram: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2">Facebook</Label>
-                        <Input
-                          value={formData.facebook}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              facebook: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2">Linkedin</Label>
-                        <Input
-                          value={formData.linkedin}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              linkedin: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <Button
-                        onClick={handleFormSubmit}
-                        className="w-full mt-4"
-                      >
-                        Save Changes
-                      </Button>
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="mb-2">Name</Label>
+                      <Input
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                      />
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </CardContent>
-          </CardHeader>
+                    <div>
+                      <Label className="mb-2">Bio</Label>
+                      <Input
+                        value={formData.bio}
+                        onChange={(e) =>
+                          setFormData({ ...formData, bio: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label className="mb-2">instagram</Label>
+                      <Input
+                        value={formData.instagram}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            instagram: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label className="mb-2">Facebook</Label>
+                      <Input
+                        value={formData.facebook}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            facebook: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label className="mb-2">Linkedin</Label>
+                      <Input
+                        value={formData.linkedin}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            linkedin: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <Button onClick={handleFormSubmit} className="w-full mt-4">
+                      Save Changes
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
         </Card>
       )}
     </div>
