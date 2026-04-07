@@ -236,7 +236,7 @@ GET    /api/me                    # current user (auth)
 ---
 
 ## 📝 License
-MIT License © 2025 [Raj Aryan](https://github.com/Aaaryan120)
+MIT License © 2025 [Ayush Raj](https://github.com/rajayush16)
 
 ---
 
